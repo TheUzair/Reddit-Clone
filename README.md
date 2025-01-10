@@ -1,5 +1,10 @@
 # Reddit Clone  
-A modern Reddit clone built with **Next.js 15**, **React 19**, and **Tailwind CSS**, replicating the core features and design principles of Reddit while leveraging cutting-edge web technologies. This project offers a seamless and responsive experience with an emphasis on user interactions, accessibility, and scalability.
+
+A modern Reddit clone built with **Next.js 15**, **React 19**, and **Tailwind CSS**, replicating the core features and design principles of Reddit while leveraging cutting-edge web technologies. This project offers a seamless and responsive experience with an emphasis on user interactions, accessibility, and scalability.  
+
+[**Live Demo**](https://reddit-clone-psi-green.vercel.app/)  
+
+---  
 
 ## Features  
 - **Dark/Light Mode**: Built-in theme toggle for a better user experience.  
@@ -12,7 +17,7 @@ A modern Reddit clone built with **Next.js 15**, **React 19**, and **Tailwind CS
 - **Authentication with Reddit API**: OAuth-based login to fetch personalized data.  
 - **Highly Modular Components**: Built with reusable and scalable components using Radix UI.  
 
----
+---  
 
 ## Tech Stack  
 - **Next.js**: Version 15.1.4  
@@ -21,7 +26,7 @@ A modern Reddit clone built with **Next.js 15**, **React 19**, and **Tailwind CS
 - **Radix UI**: Highly accessible React components.  
 - **Lucide React Icons**: Lightweight and customizable icons.  
 
----
+---  
 
 ## Getting Started  
 
@@ -33,34 +38,35 @@ A modern Reddit clone built with **Next.js 15**, **React 19**, and **Tailwind CS
 
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/TheUzair/Reddit-Clone.git
+   git clone https://github.com/theuzair/reddit-clone.git
    cd reddit-clone
-   ```
+   ```  
 
 2. Install dependencies:  
    ```bash
    npm install
    # or
    yarn install
-   ```
+   ```  
 
 3. Create a `.env.local` file in the root directory:  
    ```env
    REDDIT_CLIENT_ID=your_client_id
    REDDIT_CLIENT_SECRET=your_client_secret
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
-   ```
+   REDDIT_USERNAME=your_username_here
+   REDDIT_PASSWORD=your_password_here
+   ```  
 
 4. Run the development server:  
    ```bash
    npm run dev
    # or
    yarn dev
-   ```
+   ```  
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.  
 
----
+---  
 
 ### Build  
 To create an optimized production build:  
@@ -68,7 +74,7 @@ To create an optimized production build:
 npm run build
 # or
 yarn build
-```
+```  
 
 ### Production  
 To run the production build:  
@@ -76,9 +82,9 @@ To run the production build:
 npm run start
 # or
 yarn start
-```
+```  
 
----
+---  
 
 ## Project Structure  
 ```plaintext
@@ -94,9 +100,9 @@ reddit-clone/
 ├── styles/                  # Global CSS and Tailwind styles
 ├── .env.local               # Environment variables
 └── README.md                # Project documentation
-```
+```  
 
----
+---  
 
 ## Contributing  
 
@@ -115,12 +121,12 @@ reddit-clone/
    ```  
 5. Open a Pull Request.  
 
----
+---  
 
 ## License  
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.  
 
----
+---  
 
 ## Acknowledgments  
 - **[Reddit API](https://www.reddit.com/dev/api/)**: For enabling the integration of Reddit's core functionality.  
@@ -128,7 +134,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **[Tailwind CSS Team](https://tailwindcss.com/)**: For delivering a utility-first CSS framework.  
 - **[Radix UI Team](https://www.radix-ui.com/)**: For offering a suite of accessible UI primitives.  
 
----
+---  
 
 ## Future Enhancements  
 - **User Profiles**: Add the ability to create and manage user profiles.  
