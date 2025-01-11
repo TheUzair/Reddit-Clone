@@ -1,5 +1,4 @@
-// theme-context.js
-'use client'; // Required for Next.js 13+ app directory
+'use client'; 
 
 import { createContext, useEffect, useState } from 'react';
 
