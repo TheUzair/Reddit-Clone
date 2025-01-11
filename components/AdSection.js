@@ -45,22 +45,30 @@ const AdSection = () => {
           </button>
         </div>
       </div>
-      {/* <Link
+      <Link
         href="https://ads.reddit.com/"
         target="_blank"
         rel="noopener noreferrer"
         className="block hover:opacity-90 transition-opacity max-w-[260px] w-full"
-      > */}
-        {/* <div className="relative w-full aspect-[13/10]">
+      >
+        <div className="relative w-full aspect-[13/10] bg-gray-700 rounded-lg overflow-hidden">
           <Image
-            src="/reddit-ads.jpg"
-            alt="Reddit Ads"
+            src="/light-sale.jpg"
+            alt="Reddit Sale"
             fill
-            className="rounded-lg object-cover"
+            className="object-cover dark:hidden"
             sizes="(max-width: 768px) 100vw, 260px"
           />
+          <Image
+            src="/dark-sale.jpg"
+            alt="Reddit Sale"
+            fill
+            className="hidden object-cover dark:block dark:brightness-200"
+            sizes="(max-width: 768px) 100vw, 260px"
+          />
+          <div className="absolute inset-0 bg-gray-700 opacity-[0.9] dark:block hidden"></div>
         </div>
-      </Link> */}
+      </Link>
     </div>
   );
 };
