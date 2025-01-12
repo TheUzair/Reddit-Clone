@@ -4,7 +4,7 @@ import { FaChevronDown, FaUser, FaStar, FaReddit } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
-    <div className="space-y-6 block sticky top-0">
+    <div className="space-y-6 block sticky top-4">
       {/* Filter Section */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 shadow-sm">
         <div className="flex items-center justify-between">

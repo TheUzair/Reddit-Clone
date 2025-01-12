@@ -24,13 +24,11 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Layout: Navigation Tabs, SearchBar, and Create Post */}
-        <div className="hidden lg:flex flex-1 items-center justify-between ml-8">
+        <div className="hidden lg:flex flex-1 items-center justify-between ml-8 mr-32 pl-8">
           <NavigationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          <div className="flex items-center gap-4">
-            <SearchBar />
-            <button
-              className="bg-[#FF4500] text-white px-4 py-2 rounded-md hover:bg-[#ff4500]/90 transition-colors duration-200"
-            >
+          <div className="flex items-center gap-4 flex-1 ml-8">
+            <SearchBar className="flex-1" /> 
+            <button className="bg-[#FF4500] text-white px-4 py-2 rounded-md hover:bg-[#ff4500]/90 transition-colors duration-200 whitespace-nowrap">
               Create Post
             </button>
           </div>
@@ -74,9 +72,8 @@ export default function Navbar() {
 
           {/* Search Bar and Create Post */}
           <div
-            className={`flex flex-col md:flex-row md:items-center md:gap-4 ${
-              isMobileMenuOpen ? "gap-4" : ""
-            }`}
+            className={`flex flex-col md:flex-row md:items-center md:gap-4 ${isMobileMenuOpen ? "gap-4" : ""
+              }`}
           >
             <div className="w-full md:w-auto">
               <SearchBar />
