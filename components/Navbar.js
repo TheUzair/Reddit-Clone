@@ -14,14 +14,7 @@ import {
 import { TbChartArrowsVertical } from "react-icons/tb";
 import { CgMoveUp } from "react-icons/cg";
 import { ThemeContext } from "@/context/ThemeContext";
-import Image from "next/image";
-
-const mockSuggestions = [
-  { type: 'community', name: 'r/programming', members: '3.2M' },
-  { type: 'community', name: 'r/javascript', members: '2.1M' },
-  { type: 'post', title: 'Learn React in 2024', subreddit: 'r/reactjs' },
-  { type: 'post', title: 'Web Development Tips', subreddit: 'r/webdev' },
-];
+import Image from "next/image";;
 
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState("popular");
@@ -30,7 +23,7 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const searchRef = useRef(null);
-
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,29 +36,88 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   useEffect(() => {
-    const handleSearch = () => {
-      if (searchQuery.length > 0) {
+    const searchReddit = async () => {
+      if (searchQuery.length >= 2) {
+        setIsSearching(true);
+        try {
+          const authResponse = await fetch('/api/reddit-auth', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
 
-        const filteredSuggestions = mockSuggestions.filter(
-          (item) => {
-            const searchTerm = searchQuery.toLowerCase();
-            return item.type === 'community' 
-              ? item.name.toLowerCase().includes(searchTerm)
-              : (item.title.toLowerCase().includes(searchTerm) || 
-                 item.subreddit.toLowerCase().includes(searchTerm));
+          if (!authResponse.ok) {
+            throw new Error('Failed to get access token');
           }
-        );
-        setSuggestions(filteredSuggestions);
-        setShowSuggestions(true);
+
+          const { access_token } = await authResponse.json();
+
+          const response = await fetch(
+            `/api/reddit-search?q=${encodeURIComponent(searchQuery)}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${access_token}`
+              }
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('Raw Reddit search response:', data);
+
+          if (!data || !Array.isArray(data)) {
+            console.error('Unexpected data structure:', data);
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+          }
+
+          const transformedResults = data
+            .filter(listing => listing.kind === 'Listing' && listing.data?.children)
+            .flatMap(listing => listing.data.children)
+            .filter(item => item.data)
+            .map(item => {
+              const isSubreddit = item.kind === 't5';
+              return {
+                type: isSubreddit ? 'community' : 'post',
+                name: isSubreddit ? item.data.display_name_prefixed : item.data.subreddit_name_prefixed,
+                members: isSubreddit && item.data.subscribers
+                  ? `${(item.data.subscribers).toLocaleString()} members`
+                  : '',
+                title: !isSubreddit ? item.data.title : '',
+                subreddit: !isSubreddit ? item.data.subreddit_name_prefixed : '',
+                score: item.data.score,
+                id: item.data.id
+              };
+            })
+            .sort((a, b) => {
+              if (a.type === 'community' && b.type !== 'community') return -1;
+              if (b.type === 'community' && a.type !== 'community') return 1;
+              return 0;
+            })
+            .slice(0, 5);
+
+          setSuggestions(transformedResults);
+          setShowSuggestions(transformedResults.length > 0);
+        } catch (error) {
+          console.error('Error searching Reddit:', error);
+          setSuggestions([]);
+          setShowSuggestions(false);
+        } finally {
+          setIsSearching(false);
+        }
       } else {
         setSuggestions([]);
         setShowSuggestions(false);
       }
     };
 
-    const debounceTimeout = setTimeout(handleSearch, 300);
+    const debounceTimeout = setTimeout(searchReddit, 500);
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
 
@@ -138,36 +190,45 @@ const Navbar = () => {
                   onChange={handleSearchChange}
                   placeholder="Find community or post"
                   className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-50 border border-gray-300 
-                       dark:bg-gray-700 dark:border-gray-600 dark:text-white
-                       dark:placeholder-gray-400 focus:outline-none focus:ring-2
-                       focus:ring-[#FF4500] focus:border-transparent"
+                  dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                  dark:placeholder-gray-400 focus:outline-none focus:ring-2
+                  focus:ring-[#FF4500] focus:border-transparent"
                 />
-                
-                {showSuggestions && suggestions.length > 0 && (
+                {showSuggestions && (
                   <div className="absolute w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 
-                                dark:border-gray-700 rounded-md shadow-lg z-50">
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                      >
-                        {suggestion.type === 'community' ? (
-                          <div className="flex items-center">
-                            <FaReddit className="w-5 h-5 text-[#FF4500] mr-2" />
-                            <div>
-                              <div className="font-medium dark:text-white">{suggestion.name}</div>
-                              <div className="text-sm text-gray-500">{suggestion.members} members</div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div>
-                            <div className="font-medium dark:text-white">{suggestion.title}</div>
-                            <div className="text-sm text-gray-500">{suggestion.subreddit}</div>
-                          </div>
-                        )}
+                    dark:border-gray-700 rounded-md shadow-lg z-50">
+                    {isSearching ? (
+                      <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                        Searching...
                       </div>
-                    ))}
+                    ) : suggestions.length > 0 ? (
+                      suggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        >
+                          {suggestion.type === 'community' ? (
+                            <div className="flex items-center">
+                              <FaReddit className="w-5 h-5 text-[#FF4500] mr-2" />
+                              <div>
+                                <div className="font-medium dark:text-white">{suggestion.name}</div>
+                                <div className="text-sm text-gray-500">{suggestion.members} members</div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="font-medium dark:text-white">{suggestion.title}</div>
+                              <div className="text-sm text-gray-500">{suggestion.subreddit}</div>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                        No results found
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

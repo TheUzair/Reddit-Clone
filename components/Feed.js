@@ -1,21 +1,25 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, ChevronDown, MessageSquare, Share, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 
 export default function Feed() {
-	const [posts, setPosts] = useState([]);
 	const [activeSubCategory, setActiveSubCategory] = useState("Hot");
 	const [loading, setLoading] = useState(false);
 	const [timeFilter, setTimeFilter] = useState("day");
 	const [error, setError] = useState(null);
+	const [page, setPage] = useState(1);
+	const [allPosts, setAllPosts] = useState([]);
+	const [displayedPosts, setDisplayedPosts] = useState([]);
 
+	const POSTS_PER_PAGE = 10;
 	const categories = ["Hot", "New", "Controversial", "Rising", "Top"];
 	const timeFilters = ["hour", "day", "week", "month", "year", "all"];
 
 	const transformRedditData = (apiData) => {
-		return apiData.data.children.map(post => {
+		return apiData.data.children.map((post, index) => {
 			let imageUrl = '/default-image.jpg';
 
 			if (post.data.thumbnail) {
@@ -35,7 +39,8 @@ export default function Feed() {
 			}
 
 			return {
-				id: post.data.id,
+				id: `${post.data.id}-${crypto.randomUUID()}`,
+				originalId: post.data.id,
 				title: post.data.title,
 				author: post.data.author,
 				date: new Date(post.data.created_utc * 1000).toLocaleString(),
@@ -79,7 +84,7 @@ export default function Feed() {
 		}
 	};
 
-	const fetchRedditData = async (category, time = 'day', limit = 50) => {
+	const fetchRedditData = async (category, time = 'day') => {
 		setLoading(true);
 		setError(null);
 
@@ -91,16 +96,15 @@ export default function Feed() {
 				return;
 			}
 
-			const response = await fetch(
-				`/api/reddit-data?category=${category}&time=${time}&accessToken=${accessToken}&limit=${limit}`
-			);
+			const url = `/api/reddit-data?category=${category}&time=${time}&accessToken=${accessToken}&limit=100`;
+
+			const response = await fetch(url);
 
 			if (response.status === 429) {
 				const retryAfter = response.headers.get('Retry-After') || '60';
 				setError('Rate limit reached. Retrying...');
-
 				setTimeout(() => {
-					fetchRedditData(category, time, limit);
+					fetchRedditData(category, time);
 				}, parseInt(retryAfter) * 1000);
 				return;
 			}
@@ -121,19 +125,37 @@ export default function Feed() {
 			}
 
 			const transformedPosts = transformRedditData(data);
-			setPosts(transformedPosts);
+			setAllPosts(transformedPosts);
+			setDisplayedPosts(transformedPosts.slice(0, POSTS_PER_PAGE));
+			setPage(1);
+
 		} catch (error) {
 			console.error('Error fetching Reddit data:', error);
-			setPosts([]);
+			setAllPosts([]);
+			setDisplayedPosts([]);
 			setError(error.message || 'Failed to load posts. Please try again later.');
 		} finally {
 			setLoading(false);
 		}
 	};
 
+	const loadMore = () => {
+		const nextPage = page + 1;
+		const startIndex = (nextPage - 1) * POSTS_PER_PAGE;
+		const endIndex = startIndex + POSTS_PER_PAGE;
+
+		setDisplayedPosts(prevPosts => [
+			...prevPosts,
+			...allPosts.slice(startIndex, endIndex)
+		]);
+		setPage(nextPage);
+	};
+
 	useEffect(() => {
 		fetchRedditData(activeSubCategory, timeFilter);
 	}, [activeSubCategory, timeFilter]);
+
+	const hasMore = displayedPosts.length < allPosts.length;
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
@@ -184,13 +206,13 @@ export default function Feed() {
 				</div>
 			)}
 
-			{loading ? (
+			{loading && displayedPosts.length === 0 ? (
 				<div className="flex justify-center items-center py-8">
 					<div className="text-gray-500 dark:text-gray-400">Loading...</div>
 				</div>
 			) : (
 				<div className="space-y-4">
-					{posts.map((post) => (
+					{displayedPosts.map((post) => (
 						<div
 							key={post.id}
 							className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900"
@@ -272,6 +294,65 @@ export default function Feed() {
 							</div>
 						</div>
 					))}
+
+					{hasMore && !loading && displayedPosts.length > 0 && (
+						<Button
+						onClick={loadMore}
+						variant="outline"
+						className="w-full mt-4 transition-colors duration-200 
+							bg-white dark:bg-gray-800 
+							hover:bg-gray-100 dark:hover:bg-gray-700
+							text-gray-800 dark:text-gray-200
+							border border-gray-300 dark:border-gray-600
+							focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-blue-400
+							disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{loading ? (
+							<div className="flex items-center justify-center gap-2">
+								<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+									<circle 
+										className="opacity-25" 
+										cx="12" 
+										cy="12" 
+										r="10" 
+										stroke="currentColor" 
+										strokeWidth="4"
+									/>
+									<path 
+										className="opacity-75" 
+										fill="currentColor" 
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+									/>
+								</svg>
+								<span>Loading...</span>
+							</div>
+						) : (
+							<div className="flex items-center justify-center gap-2">
+								<span>Load More</span>
+								<svg 
+									className="w-4 h-4" 
+									fill="none" 
+									stroke="currentColor" 
+									viewBox="0 0 24 24"
+								>
+									<path 
+										strokeLinecap="round" 
+										strokeLinejoin="round" 
+										strokeWidth={2} 
+										d="M19 9l-7 7-7-7"
+									/>
+								</svg>
+							</div>
+						)}
+					</Button>
+					)}
+
+					{!hasMore && displayedPosts.length > 0 && (
+						<div className="text-center py-4 text-gray-500 dark:text-gray-400">
+							No more posts to load
+						</div>
+					)}
+
 				</div>
 			)}
 		</div>

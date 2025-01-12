@@ -5,7 +5,7 @@ export async function GET(request) {
   const category = searchParams.get('category');
   const time = searchParams.get('time');
   const accessToken = searchParams.get('accessToken');
-  const limit = searchParams.get('limit') || '25'; // Default to 25 posts
+  const limit = searchParams.get('limit') || '25';
 
   try {
     let endpoint = category.toLowerCase();
