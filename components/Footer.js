@@ -3,7 +3,7 @@ import { FaCircle } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className="bg-white dark:bg-gray-700 p-6 block sticky top-0">
+    <footer className="bg-white dark:bg-gray-700 p-6 block sticky bottom-0 w-full">
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-3 mb-4">
           {['About', 'Advertise', 'Reddit App'].map((item) => (

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import CategoryBar from "./CategoryBar";
 import TimeFilters from "./TimeFilters";
 import PostList from "./PostList";
-import { getRedditAccessToken, transformRedditData } from "@/lib/reddit"; // Add this import
+import { getRedditAccessToken, transformRedditData } from "@/lib/reddit";
 
 export default function Feed() {
   const [activeSubCategory, setActiveSubCategory] = useState("Hot");
@@ -17,7 +17,7 @@ export default function Feed() {
 
   const POSTS_PER_PAGE = 10;
 
-  const fetchRedditData = async (category, time = 'day') => {
+  const fetchRedditData = async (category, time = "day") => {
     setLoading(true);
     setError(null);
 
@@ -25,7 +25,7 @@ export default function Feed() {
       const accessToken = await getRedditAccessToken();
 
       if (!accessToken) {
-        setError('Authentication failed. Please try again.');
+        setError("Authentication failed. Please try again.");
         return;
       }
 
@@ -33,8 +33,8 @@ export default function Feed() {
       const response = await fetch(url);
 
       if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After') || '60';
-        setError('Rate limit reached. Retrying...');
+        const retryAfter = response.headers.get("Retry-After") || "60";
+        setError("Rate limit reached. Retrying...");
         setTimeout(() => {
           fetchRedditData(category, time);
         }, parseInt(retryAfter) * 1000);
@@ -42,30 +42,33 @@ export default function Feed() {
       }
 
       if (response.status === 401 || response.status === 403) {
-        setError('Authentication expired. Please refresh the page.');
+        setError("Authentication expired. Please refresh the page.");
         return;
       }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`API Error: ${response.status} - ${errorData.message || 'Failed to fetch data'}`);
+        throw new Error(
+          `API Error: ${response.status} - ${errorData.message || "Failed to fetch data"}`
+        );
       }
 
       const data = await response.json();
       if (!data?.data?.children) {
-        throw new Error('Invalid data format received');
+        throw new Error("Invalid data format received");
       }
 
       const transformedPosts = transformRedditData(data);
       setAllPosts(transformedPosts);
       setDisplayedPosts(transformedPosts.slice(0, POSTS_PER_PAGE));
       setPage(1);
-
     } catch (error) {
-      console.error('Error fetching Reddit data:', error);
+      console.error("Error fetching Reddit data:", error);
       setAllPosts([]);
       setDisplayedPosts([]);
-      setError(error.message || 'Failed to load posts. Please try again later.');
+      setError(
+        error.message || "Failed to load posts. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -76,9 +79,9 @@ export default function Feed() {
     const startIndex = (nextPage - 1) * POSTS_PER_PAGE;
     const endIndex = startIndex + POSTS_PER_PAGE;
 
-    setDisplayedPosts(prevPosts => [
+    setDisplayedPosts((prevPosts) => [
       ...prevPosts,
-      ...allPosts.slice(startIndex, endIndex)
+      ...allPosts.slice(startIndex, endIndex),
     ]);
     setPage(nextPage);
   };
@@ -90,28 +93,36 @@ export default function Feed() {
   const hasMore = displayedPosts.length < allPosts.length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
-      <CategoryBar 
-        activeSubCategory={activeSubCategory}
-        setActiveSubCategory={setActiveSubCategory}
-        loading={loading}
-      />
+    <div className="max-w-7xl mx-auto px-4 sm:px-2 md:px-4 py-4 rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
+      {/* CategoryBar */}
+      <div className="mb-4">
+        <CategoryBar
+          activeSubCategory={activeSubCategory}
+          setActiveSubCategory={setActiveSubCategory}
+          loading={loading}
+        />
+      </div>
 
+      {/* Error Message */}
       {error && (
         <div className="text-red-500 dark:text-red-400 text-center py-4">
           {error}
         </div>
       )}
 
-      {(activeSubCategory === 'Top' || activeSubCategory === 'Controversial') && (
-        <TimeFilters 
-          timeFilter={timeFilter}
-          setTimeFilter={setTimeFilter}
-          loading={loading}
-        />
+      {/* Time Filters */}
+      {(activeSubCategory === "Top" || activeSubCategory === "Controversial") && (
+        <div className="mb-4">
+          <TimeFilters
+            timeFilter={timeFilter}
+            setTimeFilter={setTimeFilter}
+            loading={loading}
+          />
+        </div>
       )}
 
-      <PostList 
+      {/* Post List */}
+      <PostList
         loading={loading}
         displayedPosts={displayedPosts}
         hasMore={hasMore}

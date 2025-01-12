@@ -45,30 +45,34 @@ const AdSection = () => {
           </button>
         </div>
       </div>
-      <Link
-        href="https://ads.reddit.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block hover:opacity-90 transition-opacity max-w-[260px] w-full"
-      >
-        <div className="relative w-full aspect-[13/10] bg-gray-700 rounded-lg overflow-hidden">
-          <Image
-            src="/light-sale.jpg"
-            alt="Reddit Sale"
-            fill
-            className="object-cover dark:hidden"
-            sizes="(max-width: 768px) 100vw, 260px"
-          />
-          <Image
-            src="/dark-sale.jpg"
-            alt="Reddit Sale"
-            fill
-            className="hidden object-cover dark:block dark:brightness-200"
-            sizes="(max-width: 768px) 100vw, 260px"
-          />
-          <div className="absolute inset-0 bg-gray-700 opacity-[0.9] dark:block hidden"></div>
-        </div>
-      </Link>
+      <div className='hidden lg:block w-full'> 
+        <Link
+          href="https://ads.reddit.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block hover:opacity-90 transition-opacity max-w-[260px] w-full"
+        >
+          <div className="relative w-full aspect-[13/10] bg-gray-700 rounded-lg overflow-hidden">
+            <Image
+              src="/light-sale.jpg"
+              alt="Reddit Sale"
+              fill
+              className="object-cover dark:hidden sm:w-full"
+              sizes="100vw"
+              priority
+            />
+            <Image
+              src="/dark-sale.jpg"
+              alt="Reddit Sale"
+              fill
+              className="hidden object-cover dark:block dark:brightness-200"
+              sizes="100vw"
+              priority
+            />
+            <div className="absolute inset-0 bg-gray-700 opacity-[0.9] dark:block hidden"></div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 };

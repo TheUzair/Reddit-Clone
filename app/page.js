@@ -6,25 +6,30 @@ import Sidebar from "@/components/Sidebar";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+    <div className="min-h-screen flex flex-col bg-blue-50 dark:bg-gray-800">
+      {/* Navbar */}
       <Navbar />
-      <div className="flex flex-1">
+
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col lg:flex-row">
         {/* Sidebar */}
-        <div className="w-64 p-4">
+        <div className="lg:w-64 p-4 hidden lg:block">
           <Sidebar />
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 grid grid-cols-8 gap-4">
+        {/* Feed and Right Section */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-8 gap-4 p-4">
           {/* Feed */}
-          <div className="col-span-6 p-4">
+          <div className="col-span-1 lg:col-span-6">
             <Feed />
           </div>
 
           {/* Right Section */}
-          <div className="col-span-2 p-4 relative">
-            <AdSection />
-            <div className="sticky top-[calc(100vh-200px)]">
+          <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
+            <div className="lg:sticky lg:top-4">
+              <AdSection />
+            </div>
+            <div className="lg:mt-auto lg:sticky lg:top-[calc(100vh-200px)]">
               <Footer />
             </div>
           </div>
