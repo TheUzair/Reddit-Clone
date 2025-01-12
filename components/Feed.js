@@ -14,10 +14,6 @@ export default function Feed() {
 	const categories = ["Hot", "New", "Controversial", "Rising", "Top"];
 	const timeFilters = ["hour", "day", "week", "month", "year", "all"];
 
-	const ImageLoader = () => (
-		<div className="w-20 h-20 rounded-md bg-gray-200 animate-pulse" />
-	);
-
 	const transformRedditData = (apiData) => {
 		return apiData.data.children.map(post => {
 			let imageUrl = '/default-image.jpg';
@@ -66,38 +62,70 @@ export default function Feed() {
 					'Content-Type': 'application/json'
 				}
 			});
-	
+
 			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(`Auth Error: ${response.status} - ${errorData.message || 'Failed to get access token'}`);
 			}
-	
+
 			const data = await response.json();
+			if (!data.access_token) {
+				throw new Error('No access token received');
+			}
 			return data.access_token;
 		} catch (error) {
 			console.error('Error getting Reddit access token:', error);
 			throw error;
 		}
 	};
-	
-	const fetchRedditData = async (category, time = 'day') => {
+
+	const fetchRedditData = async (category, time = 'day', limit = 50) => {
 		setLoading(true);
 		setError(null);
+
 		try {
 			const accessToken = await getRedditAccessToken();
 
-			const response = await fetch(`/api/reddit-data?category=${category}&time=${time}&accessToken=${accessToken}`);
+			if (!accessToken) {
+				setError('Authentication failed. Please try again.');
+				return;
+			}
+
+			const response = await fetch(
+				`/api/reddit-data?category=${category}&time=${time}&accessToken=${accessToken}&limit=${limit}`
+			);
+
+			if (response.status === 429) {
+				const retryAfter = response.headers.get('Retry-After') || '60';
+				setError('Rate limit reached. Retrying...');
+
+				setTimeout(() => {
+					fetchRedditData(category, time, limit);
+				}, parseInt(retryAfter) * 1000);
+				return;
+			}
+
+			if (response.status === 401 || response.status === 403) {
+				setError('Authentication expired. Please refresh the page.');
+				return;
+			}
 
 			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(`API Error: ${response.status} - ${errorData.message || 'Failed to fetch data'}`);
 			}
 
 			const data = await response.json();
+			if (!data?.data?.children) {
+				throw new Error('Invalid data format received');
+			}
+
 			const transformedPosts = transformRedditData(data);
 			setPosts(transformedPosts);
 		} catch (error) {
 			console.error('Error fetching Reddit data:', error);
 			setPosts([]);
-			setError('Failed to load posts. Please try again later.');
+			setError(error.message || 'Failed to load posts. Please try again later.');
 		} finally {
 			setLoading(false);
 		}
