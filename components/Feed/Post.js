@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { ChevronUp, ChevronDown, MessageSquare, Share, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
+import PostSkeleton from "./PostSkeleton";
 
-export default function Post({ post, loading }) {
+export default function Post({ post }) {
+  // If no post data is provided, return array of skeletons
+  if (!post) {
+    return <PostSkeleton />;
+  }
+
+  // Render actual post content when post data is available
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr,1fr,auto] md:gap-8">
@@ -10,20 +17,16 @@ export default function Post({ post, loading }) {
         <div className="space-y-4">
           <div className="flex gap-4 items-start">
             <div className="flex-shrink-0 relative w-20 h-20 sm:w-16 sm:h-16">
-              {loading ? (
-                <div className="w-20 h-20 sm:w-16 sm:h-16 bg-gray-200 rounded-md animate-pulse" />
-              ) : (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={post.image || "/default-image.jpg"}
-                    alt={post.title}
-                    fill
-                    className="rounded-md object-cover"
-                    sizes="80px"
-                    unoptimized
-                  />
-                </div>
-              )}
+              <div className="relative w-full h-full">
+                <Image
+                  src={post.image || "/default-image.jpg"}
+                  alt={post.title}
+                  fill
+                  className="rounded-md object-cover"
+                  sizes="80px"
+                  unoptimized
+                />
+              </div>
             </div>
             <div className="space-y-3 flex-1">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -45,7 +48,6 @@ export default function Post({ post, loading }) {
               <span className="text-gray-500 dark:text-gray-400">Comments</span>
             </div>
           </div>
-          
           <div className="flex items-center gap-2">
             <Share className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <div className="flex items-center gap-1">
@@ -53,7 +55,6 @@ export default function Post({ post, loading }) {
               <span className="text-gray-500 dark:text-gray-400">Shares</span>
             </div>
           </div>
-          
           <Button variant="ghost" size="sm" className="w-fit p-0 flex items-center gap-2">
             <MoreHorizontal className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <span className="text-gray-500 dark:text-gray-400">More</span>

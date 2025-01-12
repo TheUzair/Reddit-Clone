@@ -1,20 +1,20 @@
 import Post from "./Post";
 import LoadMoreButton from "./LoadMoreButton";
 
-export default function PostList({ loading, displayedPosts, hasMore, loadMore }) {
-  if (loading && displayedPosts.length === 0) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <div className="text-gray-500 dark:text-gray-400">Loading...</div>
-      </div>
-    );
+export default function PostList({ initialLoading, loading, displayedPosts, hasMore, loadMore }) {
+  if (initialLoading) {
+    return <Post post={null} />;
   }
 
   return (
     <div className="space-y-4">
       {displayedPosts.map((post) => (
-        <Post key={post.id} post={post} loading={loading} />
+        <Post key={post.id} post={post} />
       ))}
+
+      {loading && !initialLoading && (
+        <Post post={null} />
+      )}
 
       {hasMore && !loading && displayedPosts.length > 0 && (
         <LoadMoreButton onClick={loadMore} loading={loading} />
